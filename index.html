@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="ru" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="theme-color" content="#09090f" />
+  <title>BeatDrop — Ритм-игра</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <!-- Drop zone overlay -->
+  <div id="drop-overlay" class="drop-overlay hidden">
+    <div class="drop-overlay-inner">
+      <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+        <path d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3"/>
+      </svg>
+      <p>Отпустите MP3-файл</p>
+    </div>
+  </div>
+
+  <!-- Screen: Welcome -->
+  <div id="screen-welcome" class="screen active">
+    <div class="welcome-bg"></div>
+    <div class="welcome-content">
+      <div class="logo">
+        <svg class="logo-svg" viewBox="0 0 120 40" aria-label="BeatDrop">
+          <!-- Waveform bars -->
+          <rect x="0" y="20" width="6" height="8" rx="2" fill="#a855f7"/>
+          <rect x="10" y="14" width="6" height="20" rx="2" fill="#a855f7"/>
+          <rect x="20" y="8" width="6" height="32" rx="2" fill="#c084fc"/>
+          <rect x="30" y="16" width="6" height="16" rx="2" fill="#a855f7"/>
+          <rect x="40" y="22" width="6" height="8" rx="2" fill="#7c3aed"/>
+          <!-- Text -->
+          <text x="58" y="28" font-family="Orbitron, sans-serif" font-weight="900" font-size="18" fill="#e2e8f0" letter-spacing="1">BEAT</text>
+          <text x="106" y="28" font-family="Orbitron, sans-serif" font-weight="400" font-size="18" fill="#a855f7" letter-spacing="1">DROP</text>
+        </svg>
+      </div>
+
+      <p class="welcome-subtitle" id="welcome-subtitle">Брось MP3 — игра сгенерирует beatmap</p>
+
+      <!-- Default track quick-start -->
+      <button class="default-track-btn" id="btn-default-track" disabled>Загрузка...</button>
+
+      <div class="drop-zone" id="drop-zone">
+        <div class="drop-zone-inner">
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3"/>
+          </svg>
+          <p class="drop-zone-label" id="drop-zone-label">Перетащи MP3 сюда</p>
+          <p class="drop-zone-hint" id="drop-zone-hint">или нажми, чтобы выбрать файл</p>
+          <input type="file" id="file-input" accept="audio/*" style="display:none"/>
+        </div>
+      </div>
+
+      <!-- Mobile: большая кнопка выбора файла -->
+      <button class="mobile-pick-btn" id="mobile-pick-btn">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+          <polyline points="17 8 12 3 7 8"/>
+          <line x1="12" y1="3" x2="12" y2="15"/>
+        </svg>
+        Выбрать аудиофайл
+      </button>
+
+      <div class="controls-hint" id="controls-hint">
+        <div class="controls-grid">
+          <div class="key-block"><span class="key">D</span><span class="lane-dot" style="background:#f97316"></span></div>
+          <div class="key-block"><span class="key">F</span><span class="lane-dot" style="background:#eab308"></span></div>
+          <div class="key-block"><span class="key">J</span><span class="lane-dot" style="background:#22c55e"></span></div>
+          <div class="key-block"><span class="key">K</span><span class="lane-dot" style="background:#3b82f6"></span></div>
+        </div>
+        <p class="controls-label">4 дорожки · нажимай в такт</p>
+      </div>
+      <!-- Leaderboard button on welcome -->
+      <button class="lb-welcome-btn" id="lb-welcome-btn">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="18 20 18 10"/><polyline points="12 20 12 4"/><polyline points="6 20 6 14"/>
+        </svg>
+        Лидерборд
+      </button>
+
+      <!-- Mobile controls hint -->
+      <div class="controls-hint-mobile" id="controls-hint-mobile">
+        <div class="touch-hint-row">
+          <span class="touch-dot" style="background:#f97316"></span>
+          <span class="touch-dot" style="background:#eab308"></span>
+          <span class="touch-dot" style="background:#22c55e"></span>
+          <span class="touch-dot" style="background:#3b82f6"></span>
+        </div>
+        <p class="controls-label">нажимай по дорожкам в такт</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Screen: Analyzing -->
+  <div id="screen-analyzing" class="screen">
+    <div class="analyzing-content">
+      <div class="waveform-anim" id="waveform-anim">
+        <span></span><span></span><span></span><span></span><span></span>
+        <span></span><span></span><span></span><span></span><span></span>
+      </div>
+      <p class="analyzing-title">Анализирую аудио...</p>
+      <div class="progress-bar-wrap">
+        <div class="progress-bar" id="analyze-progress"></div>
+      </div>
+      <p class="analyzing-detail" id="analyze-detail">Загрузка файла...</p>
+    </div>
+  </div>
+
+  <!-- Screen: Game -->
+  <div id="screen-game" class="screen">
+    <canvas id="gameCanvas"></canvas>
+    <div class="game-hud" id="game-hud">
+      <div class="hud-left">
+        <div class="hud-score" id="hud-score">0</div>
+        <div class="hud-label">SCORE</div>
+      </div>
+      <div class="hud-center">
+        <div class="hud-combo" id="hud-combo"></div>
+        <div class="hud-song" id="hud-song"></div>
+        <div class="hud-progress-wrap">
+          <div class="hud-progress" id="hud-progress"></div>
+        </div>
+      </div>
+      <div class="hud-right">
+        <div class="hud-accuracy" id="hud-accuracy">100%</div>
+        <div class="hud-label">ACCURACY</div>
+      </div>
+    </div>
+    <!-- Key flash indicators (desktop) -->
+    <div class="key-indicators" id="key-indicators">
+      <div class="key-ind" data-lane="0" style="--lane-color:#f97316">D</div>
+      <div class="key-ind" data-lane="1" style="--lane-color:#eab308">F</div>
+      <div class="key-ind" data-lane="2" style="--lane-color:#22c55e">J</div>
+      <div class="key-ind" data-lane="3" style="--lane-color:#3b82f6">K</div>
+    </div>
+    <!-- Touch tap zones (mobile) — невидимые, поверх canvas -->
+    <div class="touch-zones" id="touch-zones">
+      <div class="touch-zone" data-lane="0" style="--lane-color:#f97316"></div>
+      <div class="touch-zone" data-lane="1" style="--lane-color:#eab308"></div>
+      <div class="touch-zone" data-lane="2" style="--lane-color:#22c55e"></div>
+      <div class="touch-zone" data-lane="3" style="--lane-color:#3b82f6"></div>
+    </div>
+    <!-- Debug overlay -->
+    <div class="debug-overlay" id="debug-overlay"></div>
+    <!-- Pause button -->
+    <button class="pause-btn" id="pause-btn" title="Пауза (Esc)">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16" rx="1"/><rect x="14" y="4" width="4" height="16" rx="1"/></svg>
+    </button>
+  </div>
+
+  <!-- Screen: Pause -->
+  <div id="screen-pause" class="screen">
+    <div class="modal-box">
+      <h2 class="modal-title">ПАУЗА</h2>
+      <button class="btn-primary" id="btn-resume">Продолжить</button>
+      <button class="btn-secondary" id="btn-restart">Рестарт</button>
+      <button class="btn-secondary" id="btn-menu-from-pause">В меню</button>
+    </div>
+  </div>
+
+  <!-- Screen: Name Entry (after game) -->
+  <div id="screen-name" class="screen">
+    <div class="modal-box name-box">
+      <h2 class="modal-title">НОВЫЙ РЕКОРД!</h2>
+      <div class="name-rank" id="name-rank">S</div>
+      <p class="name-score-label">Score: <span id="name-score-val">0</span></p>
+      <p class="name-hint">Введи имя или оставь случайное</p>
+      <div class="name-input-row">
+        <input type="text" id="player-name-input" class="name-input" maxlength="20"
+               placeholder="CosmicRabbit42" autocomplete="off" spellcheck="false" />
+        <button class="name-dice-btn" id="name-dice-btn" title="Случайное имя">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="2" y="2" width="20" height="20" rx="4"/>
+            <circle cx="8"  cy="8"  r="1.5" fill="currentColor"/>
+            <circle cx="16" cy="8"  r="1.5" fill="currentColor"/>
+            <circle cx="8"  cy="16" r="1.5" fill="currentColor"/>
+            <circle cx="16" cy="16" r="1.5" fill="currentColor"/>
+            <circle cx="12" cy="12" r="1.5" fill="currentColor"/>
+          </svg>
+        </button>
+      </div>
+      <button class="btn-primary" id="btn-save-score">Сохранить</button>
+      <button class="btn-secondary" id="btn-skip-score">Пропустить</button>
+    </div>
+  </div>
+
+  <!-- Screen: Leaderboard -->
+  <div id="screen-leaderboard" class="screen">
+    <div class="leaderboard-box">
+      <div class="leaderboard-header">
+        <h2 class="modal-title">LEADERBOARD</h2>
+        <button class="lb-clear-btn" id="lb-clear-btn" title="Очистить">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="3 6 5 6 21 6"/>
+            <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
+            <path d="M10 11v6M14 11v6"/>
+          </svg>
+        </button>
+      </div>
+      <div class="lb-table" id="lb-table">
+        <!-- rows injected by JS -->
+      </div>
+      <div class="results-actions">
+        <button class="btn-primary" id="lb-retry-btn">Ещё раз</button>
+        <button class="btn-secondary" id="lb-menu-btn">В меню</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Screen: Results -->
+  <div id="screen-results" class="screen">
+    <div class="results-box">
+      <h2 class="results-title" id="results-title">РЕЗУЛЬТАТ</h2>
+      <div class="results-rank" id="results-rank">S</div>
+      <div class="results-stats">
+        <div class="stat-row"><span class="stat-label">Score</span><span class="stat-value" id="res-score">0</span></div>
+        <div class="stat-row"><span class="stat-label">Accuracy</span><span class="stat-value" id="res-accuracy">0%</span></div>
+        <div class="stat-row"><span class="stat-label">Max Combo</span><span class="stat-value" id="res-combo">0</span></div>
+        <div class="stat-row"><span class="stat-label stat-perfect">Perfect</span><span class="stat-value" id="res-perfect">0</span></div>
+        <div class="stat-row"><span class="stat-label stat-good">Good</span><span class="stat-value" id="res-good">0</span></div>
+        <div class="stat-row"><span class="stat-label stat-miss">Miss</span><span class="stat-value" id="res-miss">0</span></div>
+      </div>
+      <div class="results-actions">
+        <button class="btn-primary" id="btn-retry">Заново</button>
+        <button class="btn-secondary" id="btn-leaderboard">Топ-10</button>
+        <button class="btn-secondary" id="btn-menu">В меню</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="game.js" type="module"></script>
+<script data-pplx-inline-edit>
+(function(){
+  if(window===window.top)return;
+  function inlineAll(orig,clone){
+    if(orig.nodeType!==1)return;
+    try{
+      var cs=getComputedStyle(orig);
+      var t='';
+      for(var i=0;i<cs.length;i++){t+=cs[i]+':'+cs.getPropertyValue(cs[i])+';';}
+      clone.style.cssText=t;
+    }catch(e){}
+    var oc=orig.children,cc=clone.children;
+    for(var j=0;j<oc.length&&j<cc.length;j++){inlineAll(oc[j],cc[j]);}
+  }
+  function stripExternal(clone){
+    var imgs=clone.querySelectorAll('img');
+    for(var i=0;i<imgs.length;i++){
+      var s=imgs[i].getAttribute('src');
+      if(s&&!s.startsWith('data:'))imgs[i].removeAttribute('src');
+    }
+    var all=clone.querySelectorAll('*');
+    for(var i=0;i<all.length;i++){
+      var st=all[i].style.cssText;
+      if(st&&st.indexOf('url(')>=0){
+        all[i].style.cssText=st.replace(/url\(["']?(?!data:)[^)"']*["']?\)/gi,'none');
+      }
+    }
+  }
+  var scrollRaf=0;
+  function emitScroll(){
+    scrollRaf=0;
+    var x=window.scrollX||window.pageXOffset||0;
+    var y=window.scrollY||window.pageYOffset||0;
+    window.parent.postMessage({type:'INLINE_EDIT_SCROLL',scrollX:x,scrollY:y},'*');
+  }
+  window.addEventListener('scroll',function(){
+    if(scrollRaf)return;
+    scrollRaf=requestAnimationFrame(emitScroll);
+  },{passive:true,capture:true});
+  emitScroll();
+  window.addEventListener('message',function(e){
+    if(!e.data||e.data.type!=='INLINE_EDIT_CAPTURE_REQUEST')return;
+    var scrollX=window.scrollX||window.pageXOffset||0;
+    var scrollY=window.scrollY||window.pageYOffset||0;
+    var w=window.innerWidth,h=window.innerHeight;
+    try{
+      var clone=document.documentElement.cloneNode(true);
+      var rm=clone.querySelectorAll('script,link[rel="stylesheet"],style');
+      for(var i=0;i<rm.length;i++){rm[i].remove();}
+      inlineAll(document.documentElement,clone);
+      stripExternal(clone);
+      var html=new XMLSerializer().serializeToString(clone);
+      var svg='<svg xmlns="http://www.w3.org/2000/svg" width="'+w+'" height="'+h+'">'
+        +'<foreignObject width="100%" height="100%">'
+        +'<div xmlns="http://www.w3.org/1999/xhtml" style="width:'+w+'px;height:'+h+'px;overflow:hidden">'
+        +'<div style="transform:translate(-'+scrollX+'px,-'+scrollY+'px);transform-origin:top left">'
+        +html+'</div></div></foreignObject></svg>';
+      var svgUrl='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(svg);
+      var img=new Image();
+      img.onload=function(){
+        var c=document.createElement('canvas');c.width=w;c.height=h;
+        c.getContext('2d').drawImage(img,0,0);
+        window.parent.postMessage({type:'INLINE_EDIT_SCREENSHOT_RESULT',dataUrl:c.toDataURL('image/png'),scrollX:scrollX,scrollY:scrollY},'*');
+      };
+      img.onerror=function(){
+        window.parent.postMessage({type:'INLINE_EDIT_SCREENSHOT_RESULT',dataUrl:null,scrollX:scrollX,scrollY:scrollY},'*');
+      };
+      img.src=svgUrl;
+    }catch(err){
+      window.parent.postMessage({type:'INLINE_EDIT_SCREENSHOT_RESULT',dataUrl:null,scrollX:scrollX,scrollY:scrollY},'*');
+    }
+  });
+})();
+</script></body>
+</html>
